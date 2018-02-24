@@ -207,6 +207,15 @@ def getRow(mat, m):
             row.append(mat[m,n])
         return row
 
+def getVector(mat, m):
+    if mode == mode_norm:
+        return np.array(mat[m].tolist()[0])
+    else:
+        row = []
+        for n in range(mat.cols):
+            row.append(mat[m,n])
+        return mpmath.matrix(row)
+
 def copyRow(src_mat, dest_mat, m):
     newMat = dest_mat.copy()
     if mode == mode_norm:
