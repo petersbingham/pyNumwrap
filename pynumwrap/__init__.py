@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 from six.moves import builtins
 import cmath
-import mpmath
-import numpy as np
-import sympy as sy
+try:
+    import mpmath
+except:
+    pass
+try:
+    import numpy as np
+except:
+    pass
+try:
+    import sympy as sy
+except:
+    pass
 
 mode_norm = 0
 mode_mpmath = 1

@@ -10,7 +10,10 @@ Clone the repository and install with the following commands:
     python setup.py install
     
 ## Dependencies
-
+Standard Libraries (optional, depending on usage): 
+ - numpy
+ - scipy
+ - mpmath
     
 ## Usage
 
