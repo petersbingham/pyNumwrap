@@ -12,7 +12,7 @@ mode_mpmath = 1
 ################### Configuration Here ###################
 ##########################################################
 
-mode = mode_mpmath
+mode = mode_norm
 dps_mpmath = 100
 dps_pythontypes = 25
 
