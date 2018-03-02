@@ -14,30 +14,38 @@ try:
 except:
     pass
 
-mode_norm = 0
+##########################################################
+####################### Constants ########################
+##########################################################
+
+mode_python = 0
 mode_mpmath = 1
+dps_default_python = 25
+dps_default_mpmath = 100
 
 ##########################################################
-################### Configuration Here ###################
+####################### Variables ########################
 ##########################################################
 
-mode = mode_norm
-dps_mpmath = 100
-dps_pythontypes = 25
+mode = mode_python
+dps = dps_default_python
+pi = cmath.pi
 
 ##########################################################
+################# Configuration Functions ################
 ##########################################################
 
-if mode == mode_norm:
-    dps = dps_pythontypes
-else:
-    dps = dps_mpmath
-mpmath.mp.dps = dps
-
-if mode == mode_norm:
+def usePythonTypes(dpsNew=dps_default_python):
+    global mode, dps, pi
+    mode = mode_python
+    dps = dpsNew
     pi = cmath.pi
-else:
-    pi = mpmath.pi 
+
+def usempmathTypes(dpsNew=dps_default_mpmath):
+    global mode, dps, pi
+    mode = mode_mpmath
+    dps = dpsNew
+    pi = mpmath.pi
 
 ############### BASIC TYPES ###############
 
@@ -56,13 +64,13 @@ class mpc(mpmath.mpc):
         return self.real >= other.real
 
 def float(val):
-    if mode == mode_norm:
+    if mode == mode_python:
         return builtins.float(val)
     else:
         return mpmath.mpf(val)
 
 def complex(val):
-    if mode == mode_norm:
+    if mode == mode_python:
         return builtins.complex(val)
     else:
         if type(val) is str or type(val) is unicode:
@@ -89,13 +97,13 @@ def complex(val):
             return mpmath.mpc(val)
 
 def toSympy(val):
-    if mode == mode_norm:
+    if mode == mode_python:
         return val
     else:
         return sy.Float(str(val.real),dps) + sy.Float(str(val.imag),dps)*sy.I
 
 def tompmath(val):
-    if mode == mode_norm:
+    if mode == mode_python:
         return mpmath.mpc(val.real,val.imag)
     else:
         return mpmath.mpc(real=sy.re(val),imag=sy.im(val))
@@ -104,7 +112,7 @@ def tompmath(val):
 def percentile(a, q, axis=None, out=None, overwrite_input=False,
                interpolation='linear', keepdims=False):
     # Currently don't support percentile for mp types. Just convert the type.
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.percentile(a, q, axis, out, overwrite_input, interpolation,
                              keepdims)
     else:
@@ -112,38 +120,38 @@ def percentile(a, q, axis=None, out=None, overwrite_input=False,
                              overwrite_input, interpolation, keepdims)
 
 def pow(x, y):
-    if mode == mode_norm:
+    if mode == mode_python:
         return builtins.pow(x, y)
     else:
         return mpmath.power(x, y)
 
 def exp(x):
-    if mode == mode_norm:
+    if mode == mode_python:
         return cmath.exp(x)
     else:
         return mpmath.exp(x)
 
 def sqrt(x):
-    if mode == mode_norm:
+    if mode == mode_python:
         return cmath.sqrt(x)
     else:
         return mpmath.sqrt(x)
 
 def tan(x):
-    if mode == mode_norm:
+    if mode == mode_python:
         return cmath.tan(x)
     else:
         return mpmath.tan(x)
 
 def polar(x):
-    if mode == mode_norm:
+    if mode == mode_python:
         return cmath.polar(x)
     else:
         return mpmath.polar(x)
 
 def roots(coeff):
     # Currently don't support roots for mp types. Just convert the type.
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.roots(coeff)
     else:
         mappedCoeff = map(lambda val: builtins.complex(val), coeff)
@@ -152,19 +160,19 @@ def roots(coeff):
 ############### MATRIX TYPES ###############
 
 def matrix(val):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.matrix(val, dtype=np.complex128)
     else:
         return mpmath.matrix(val)
 
 def sqZeros(sz):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.matrix(np.zeros((sz, sz), dtype=np.complex128))
     else:
         return mpmath.zeros(sz)
 
 def identity(sz):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.matrix(np.identity(sz, dtype=np.complex128))
     else:
         return mpmath.eye(sz)
@@ -172,13 +180,13 @@ def identity(sz):
 ############# MATRIX CHARACTERISTICS #############
     
 def shape(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return mat.shape
     else:
         return (mat.rows, mat.cols)
 
 def size(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return mat.size
     else:
         return mat.rows*mat.cols
@@ -186,7 +194,7 @@ def size(mat):
 ############### MATRIX OPERATIONS ###############
 
 def diagonalise(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         w, v = np.linalg.eig(mat)
         P = np.transpose(np.matrix(v, dtype=np.complex128))
         return np.dot(P, np.dot(mat, np.linalg.inv(P)))
@@ -196,19 +204,19 @@ def diagonalise(mat):
         return P * mat * P**-1
 
 def invert(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.linalg.inv(mat)
     else:
         return mpmath.inverse(mat)
 
 def dot(matA, matB):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.dot(matA, matB)
     else:
         return matA * matB
 
 def getRow(mat, m):
-    if mode == mode_norm:
+    if mode == mode_python:
         return mat[m].tolist()[0]
     else:
         row = []
@@ -217,7 +225,7 @@ def getRow(mat, m):
         return row
 
 def getVector(mat, m):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.array(mat[m].tolist()[0])
     else:
         row = []
@@ -227,7 +235,7 @@ def getVector(mat, m):
 
 def copyRow(src_mat, dest_mat, m):
     newMat = dest_mat.copy()
-    if mode == mode_norm:
+    if mode == mode_python:
         for n in range(newMat.shape[1]):
             newMat[m,n] = src_mat[m,n]
     else:
@@ -236,13 +244,13 @@ def copyRow(src_mat, dest_mat, m):
     return newMat
 
 def det(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.linalg.det(mat)
     else:
         return mpmath.det(mat)
 
 def sumElements(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         XS = 0.0
         for x in np.nditer(mat, flags=['refs_ok']):
             XS += x
@@ -254,7 +262,7 @@ def sumElements(mat):
     return XS
 
 def trace(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.trace(mat)
     else:
         t = mpmath.mpc(0.0)
@@ -263,7 +271,7 @@ def trace(mat):
         return t
 
 def atanElements(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return np.arctan(mat)
     else:
         at = mpmath.matrix(mat.rows, mat.cols)
@@ -273,7 +281,7 @@ def atanElements(mat):
         return at
 
 def _toSymMatrix(mat):
-    if mode == mode_norm:
+    if mode == mode_python:
         return sy.Matrix(mat)
     else:
         symMat = sy.zeros(mat.rows, mat.cols)
@@ -297,7 +305,7 @@ def adjugate(mat):
 ############### OTHER ###############
 
 def formattedFloatString(val, dps):
-    if mode == mode_norm:
+    if mode == mode_python:
         return ("{:1."+str(dps)+"f}").format(val)
     else:
         return mpmath.nstr(val, mpIntDigits(val)+dps)
