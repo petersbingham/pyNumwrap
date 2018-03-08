@@ -41,13 +41,18 @@ def usePythonTypes(dpsNew=dps_default_python):
     dps = dpsNew
     pi = cmath.pi
 
-def usempmathTypes(dpsNew=dps_default_mpmath):
+def useMpmathTypes(dpsNew=dps_default_mpmath):
     global mode, dps, pi
     mode = mode_mpmath
     dps = dpsNew
     pi = mpmath.pi
+    mpmath.mp.dps = dps
 
 ############### BASIC TYPES ###############
+
+# For convenience:
+class mpf(mpmath.mpf):
+    pass
 
 # np.percentile need these overrides.
 class mpc(mpmath.mpc):
@@ -193,6 +198,12 @@ def size(mat):
 
 ############### MATRIX OPERATIONS ###############
 
+def lin_solve(mat, vec, **kwargs):
+    if mode == mode_python:
+        return np.linalg.solve(mat, vec, **kwargs)
+    else:
+        return mpmath.qr_solve(mat, vec, **kwargs)[0]
+
 def diagonalise(mat):
     if mode == mode_python:
         w, v = np.linalg.eig(mat)
@@ -301,6 +312,23 @@ def adjugate(mat):
     symMat = _toSymMatrix(mat)
     return _fromSympytompmathMatrix(symMat.adjugate())
 
+############### MATRIX COMPARISONS ###############
+
+def areMatricesClose(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
+    if mode == mode_python:
+        return np.allclose(mat1, mat2, rtol, atol, equal_nan)
+    else:
+        if shape(mat1) != shape(mat2):
+            return False
+        for r in range(mat1.rows):
+            for c in range(mat1.cols):
+                a = mat1[r,c]
+                b = mat2[r,c]
+                if mpmath.isnan(a) and mpmath.isnan(b) and equal_nan:
+                    pass
+                elif not numCmp(a, b, atol, rtol):
+                    return False
+    return True
 
 ############### OTHER ###############
 
@@ -336,3 +364,6 @@ def mpIntDigits(num):
                 pass
     else:
         return 0
+
+def numCmp(a, b, atol, rtol):
+    return abs(a-b) <= atol + rtol * abs(b)
