@@ -101,19 +101,40 @@ def complex(val):
         else:
             return mpmath.mpc(val)
 
+############### SYMPY CONVERSIONS ###############
+
 def toSympy(val):
     if mode == mode_python:
         return val
     else:
         return sy.Float(str(val.real),dps) + sy.Float(str(val.imag),dps)*sy.I
 
-def tompmath(val):
+def fromSympy(val):
     if mode == mode_python:
-        return mpmath.mpc(val.real,val.imag)
+        return complex(val)
     else:
-        return mpmath.mpc(real=sy.re(val),imag=sy.im(val))
+        a = sy.simplify(val)
+        return mpmath.mpmathify(a)
+
+def toSympyMatrix(mat):
+    if mode == mode_python:
+        return sy.Matrix(mat)
+    else:
+        symMat = sy.zeros(mat.rows, mat.cols)
+        for r in range(mat.rows):
+            for c in range(mat.cols):
+                symMat[r,c] = mat[r,c]
+        return symMat
+
+def fromSympyMatrix(mat):
+    newMat = zeroMatrix(mat.shape[0], mat.shape[1])
+    for r in range(mat.shape[0]):
+        for c in range(mat.shape[0]):
+            newMat[r,c] = fromSympy(mat[r,c])
+    return newMat
 
 ############### BASIC OPERATIONS ###############
+
 def percentile(a, q, axis=None, out=None, overwrite_input=False,
                interpolation='linear', keepdims=False):
     # Currently don't support percentile for mp types. Just convert the type.
@@ -170,11 +191,13 @@ def matrix(val):
     else:
         return mpmath.matrix(val)
 
-def sqZeros(sz):
+def zeroMatrix(rows, cols=None):
+    if cols is None:
+        cols = rows
     if mode == mode_python:
-        return np.matrix(np.zeros((sz, sz), dtype=np.complex128))
+        return np.matrix(np.zeros((rows, cols), dtype=np.complex128))
     else:
-        return mpmath.zeros(sz)
+        return mpmath.zeros(rows, cols)
 
 def identity(sz):
     if mode == mode_python:
@@ -291,26 +314,9 @@ def atanElements(mat):
                 at[i,j] = mpmath.atan(mat[i,j])
         return at
 
-def _toSymMatrix(mat):
-    if mode == mode_python:
-        return sy.Matrix(mat)
-    else:
-        symMat = sy.zeros(mat.rows, mat.cols)
-        for r in range(mat.rows):
-            for c in range(mat.cols):
-                symMat[r,c] = mat[r,c]
-        return symMat
-
-def _fromSympytompmathMatrix(mat):
-    mpMat = mpmath.matrix(mat.shape[0])
-    for r in range(mat.shape[0]):
-        for c in range(mat.shape[0]):
-            mpMat[r,c] = tompmath(mat[r,c])
-    return mpMat
-
 def adjugate(mat):
-    symMat = _toSymMatrix(mat)
-    return _fromSympytompmathMatrix(symMat.adjugate())
+    symMat = toSympyMatrix(mat)
+    return fromSympyMatrix(symMat.adjugate())
 
 ############### MATRIX COMPARISONS ###############
 
