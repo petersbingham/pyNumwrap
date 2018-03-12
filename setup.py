@@ -3,8 +3,8 @@
 from distutils.core import setup
 
 setup(name='pynumwrap',
-      version='0.4',
-      description='Simple Numerical Utilities',
+      version='0.5',
+      description='Python package wrapping python and mpmath types behind a common interface',
       author="Peter Bingham",
       author_email="petersbingham@hotmail.co.uk",
       packages=['pynumwrap'],
