@@ -219,23 +219,46 @@ def size(mat):
     else:
         return mat.rows*mat.cols
 
+def isSquare(mat):
+    shp = shape(mat)
+    return shp[0] == shp[1]
+
+def isIdentity(mat, rtol=1e-05, atol=1e-08):
+    if not isSquare(mat):
+        return False
+    iMat = identity(shape(mat)[0])
+    return areMatricesClose(iMat, mat, rtol, atol)
+
+def isUnitary(mat, rtol=1e-05, atol=1e-08):
+    if not isSquare(mat):
+        return False
+    iMat = identity(shape(mat)[0])
+    tcMat = transpose(conjugate(mat))
+    return areMatricesClose(iMat, mat*tcMat, rtol, atol)
+
 ############### MATRIX OPERATIONS ###############
 
-def lin_solve(mat, vec, **kwargs):
+def absolute(mat):
     if mode == mode_python:
-        return np.linalg.solve(mat, vec, **kwargs)
+        return np.absolute(mat)
     else:
-        return mpmath.qr_solve(mat, vec, **kwargs)[0]
+        absMat = mpmath.matrix(mat.rows, mat.cols)
+        for i in range(mat.rows):
+            for j in range(mat.cols):
+                absMat[i,j] = abs(mat[i,j])
+        return absMat
 
-def diagonalise(mat):
+def transpose(mat):
     if mode == mode_python:
-        w, v = np.linalg.eig(mat)
-        P = np.transpose(np.matrix(v, dtype=np.complex128))
-        return np.dot(P, np.dot(mat, np.linalg.inv(P)))
+        return np.transpose(mat)
     else:
-        w, v = mpmath.eig(mat)
-        P = mpmath.matrix(v).T
-        return P * mat * P**-1
+        return mat.T
+
+def conjugate(mat):
+    if mode == mode_python:
+        return np.conjugate(mat)
+    else:
+        return mat.conjugate()
 
 def invert(mat):
     if mode == mode_python:
@@ -248,6 +271,9 @@ def dot(matA, matB):
         return np.dot(matA, matB)
     else:
         return matA * matB
+
+def unitaryOp(mat):
+    return transpose(conjugate(mat))
 
 def getRow(mat, m):
     if mode == mode_python:
@@ -317,6 +343,22 @@ def atanElements(mat):
 def adjugate(mat):
     symMat = toSympyMatrix(mat)
     return fromSympyMatrix(symMat.adjugate())
+
+def lin_solve(mat, vec, **kwargs):
+    if mode == mode_python:
+        return np.linalg.solve(mat, vec, **kwargs)
+    else:
+        return mpmath.qr_solve(mat, vec, **kwargs)[0]
+
+def diagonalise(mat):
+    if mode == mode_python:
+        w, v = np.linalg.eig(mat)
+        P = np.transpose(np.matrix(v, dtype=np.complex128))
+        return np.dot(P, np.dot(mat, np.linalg.inv(P)))
+    else:
+        w, v = mpmath.eig(mat)
+        P = mpmath.matrix(v).T
+        return P * mat * P**-1
 
 ############### MATRIX COMPARISONS ###############
 
