@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 from six.moves import builtins
 import cmath
 try:
@@ -175,13 +176,13 @@ def polar(x):
     else:
         return mpmath.polar(x)
 
-def roots(coeff):
-    # Currently don't support roots for mp types. Just convert the type.
+def rootsSym(symPoly, **kwargs):
     if mode == mode_python:
-        return np.roots(coeff)
+        coeffs = a.all_coeffs()
+        mappedCoeffs = map(lambda val: complex(val), coeffs)
+        return np.roots(mappedCoeffs, **kwargs)
     else:
-        mappedCoeff = map(lambda val: builtins.complex(val), coeff)
-        return np.roots(mappedCoeff)
+        return symPoly.nroots(**kwargs)   
 
 ############### MATRIX TYPES ###############
 
@@ -415,3 +416,23 @@ def mpIntDigits(num):
 
 def numCmp(a, b, atol, rtol):
     return abs(a-b) <= atol + rtol * abs(b)
+
+def getArgDesc(func, args, ignore=None):
+    a = inspect.getargspec(func)
+    if a.defaults is not None:
+        d = dict(zip(a.args[-len(a.defaults):],a.defaults))
+    else:
+        d = {}
+    d.update(args)
+    argStr = "("
+    first = True
+    for arg in a.args:
+        if arg in d:
+            if ignore is None or arg not in ignore:
+                if not first:
+                    argStr += ","
+                else:
+                    first = False
+                argStr += arg + " " + str(d[arg])
+    argStr += ")"
+    return argStr
