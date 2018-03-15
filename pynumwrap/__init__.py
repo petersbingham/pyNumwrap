@@ -178,7 +178,7 @@ def polar(x):
 
 def rootsSym(symPoly, **kwargs):
     if mode == mode_python:
-        coeffs = a.all_coeffs()
+        coeffs = symPoly.all_coeffs()
         mappedCoeffs = map(lambda val: complex(val), coeffs)
         return np.roots(mappedCoeffs, **kwargs)
     else:
