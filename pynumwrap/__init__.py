@@ -285,14 +285,24 @@ def getRow(mat, m):
             row.append(mat[m,n])
         return row
 
-def getVector(mat, m):
+def getCol(mat, n):
     if mode == mode_python:
-        return np.array(mat[m].tolist()[0])
+        return mat[:,n].tolist()[0]
     else:
-        row = []
-        for n in range(mat.cols):
+        col = []
+        for m in range(mat.rows):
             row.append(mat[m,n])
-        return mpmath.matrix(row)
+        return col
+
+def getVector(mat, i, isCol=False):
+    if not isCol:
+        vec = getRow(mat, i)
+    else:
+        vec = getCol(mat, i)
+    if mode == mode_python:
+        return np.array(vec)
+    else:
+        return mpmath.matrix(vec)
 
 def copyRow(src_mat, dest_mat, m):
     newMat = dest_mat.copy()
