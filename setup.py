@@ -10,5 +10,5 @@ setup(name='pynumwrap',
       author="Peter Bingham",
       author_email="petersbingham@hotmail.co.uk",
       packages=['pynumwrap'],
-      package_data={'pynumwrap': ['README.md'],
+      package_data={'pynumwrap': ['README.md']}
      )
