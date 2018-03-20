@@ -49,6 +49,18 @@ def useMpmathTypes(dpsNew=dps_default_mpmath):
     pi = mpmath.pi
     mpmath.mp.dps = dps
 
+def setTypeMode(mode, dps=None):
+    if mode is None or mode != mode_mpmath:
+        if dps is None:
+            usePythonTypes(dps_default_python)
+        else:
+            usePythonTypes(dps)
+    else:
+        if dps is None:
+            useMpmathTypes(dps_default_mpmath)
+        else:
+            useMpmathTypes(dps)
+
 ############### BASIC TYPES ###############
 
 # For convenience:
