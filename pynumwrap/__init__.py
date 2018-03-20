@@ -11,7 +11,7 @@ try:
 except:
     pass
 try:
-    import sympy as sy
+    import sympy as sym
 except:
     pass
 
@@ -108,20 +108,20 @@ def toSympy(val):
     if mode == mode_python:
         return val
     else:
-        return sy.Float(str(val.real),dps) + sy.Float(str(val.imag),dps)*sy.I
+        return sym.Float(str(val.real),dps) + sym.Float(str(val.imag),dps)*sym.I
 
 def fromSympy(val):
     if mode == mode_python:
         return complex(val)
     else:
-        a = sy.simplify(val)
+        a = sym.simplify(val)
         return mpmath.mpmathify(a)
 
 def toSympyMatrix(mat):
     if mode == mode_python:
-        return sy.Matrix(mat)
+        return sym.Matrix(mat)
     else:
-        symMat = sy.zeros(mat.rows, mat.cols)
+        symMat = sym.zeros(mat.rows, mat.cols)
         for r in range(mat.rows):
             for c in range(mat.cols):
                 symMat[r,c] = mat[r,c]
@@ -180,9 +180,13 @@ def rootsSym(symPoly, **kwargs):
     if mode == mode_python:
         coeffs = symPoly.all_coeffs()
         mappedCoeffs = map(lambda val: complex(val), coeffs)
-        return np.roots(mappedCoeffs, **kwargs)
+        return np.roots(mappedCoeffs)
     else:
-        return symPoly.nroots(**kwargs)   
+        if "symPoly_nroots" in kwargs:
+            roots = symPoly.nroots(**kwargs["symPoly_nroots"])
+        else:
+            roots = symPoly.nroots()
+        return map(lambda val: mpmath.mpc(val), roots)
 
 ############### MATRIX TYPES ###############
 
@@ -355,11 +359,11 @@ def adjugate(mat):
     symMat = toSympyMatrix(mat)
     return fromSympyMatrix(symMat.adjugate())
 
-def lin_solve(mat, vec, **kwargs):
+def lin_solve(mat, vec):
     if mode == mode_python:
-        return np.linalg.solve(mat, vec, **kwargs)
+        return np.linalg.solve(mat, vec)
     else:
-        return mpmath.qr_solve(mat, vec, **kwargs)[0]
+        return mpmath.qr_solve(mat, vec)[0]
 
 def diagonalise(mat):
     if mode == mode_python:
