@@ -61,6 +61,12 @@ def setTypeMode(mode, dps=None):
         else:
             useMpmathTypes(dps)
 
+def getConfigString():
+    if mode == mode_python:
+        return "numpy"
+    else:
+        return "mpmath_"+str(dps)
+
 ############### BASIC TYPES ###############
 
 # For convenience:
