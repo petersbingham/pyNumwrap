@@ -66,7 +66,7 @@ def setTypeMode(mode, dps=None):
         else:
             useMpmathTypes(dps)
 
-def lockTypes():
+def lockType():
     global typeLocked
     typeLocked = True
 
