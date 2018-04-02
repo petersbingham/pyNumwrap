@@ -31,19 +31,24 @@ dps_default_mpmath = 100
 mode = mode_python
 dps = dps_default_python
 pi = cmath.pi
+typeLocked = False
 
 ##########################################################
 ################# Configuration Functions ################
 ##########################################################
 
 def usePythonTypes(dpsNew=dps_default_python):
-    global mode, dps, pi
+    global mode, dps, pi, typeLocked
+    if typeLocked:
+        raise Exception("Type locked")
     mode = mode_python
     dps = dpsNew
     pi = cmath.pi
 
 def useMpmathTypes(dpsNew=dps_default_mpmath):
-    global mode, dps, pi
+    global mode, dps, pi, typeLocked
+    if typeLocked:
+        raise Exception("Type locked")
     mode = mode_mpmath
     dps = dpsNew
     pi = mpmath.pi
@@ -60,6 +65,10 @@ def setTypeMode(mode, dps=None):
             useMpmathTypes(dps_default_mpmath)
         else:
             useMpmathTypes(dps)
+
+def lockTypes():
+    global typeLocked
+    typeLocked = True
 
 def getConfigString():
     if mode == mode_python:
