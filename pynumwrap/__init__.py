@@ -392,6 +392,13 @@ def lin_solve(mat, vec):
     else:
         return mpmath.qr_solve(mat, vec)[0]
 
+def lin_solve_homo(mat):
+    if mode == mode_python:
+        _,v,_ = np.linalg.svd(mat)
+        return transpose(np.asmatrix(v))
+    else:
+        raise NotImplementedError
+
 def diagonalise(mat):
     if mode == mode_python:
         w, v = np.linalg.eig(mat)
