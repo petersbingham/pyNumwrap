@@ -100,34 +100,13 @@ def float(val):
     if mode == mode_python:
         return builtins.float(val)
     else:
-        return mpmath.mpf(val)
+        return mpmath.mpf(mpmath.mpmathify(val))
 
 def complex(val):
     if mode == mode_python:
         return builtins.complex(val)
     else:
-        if type(val) is str or type(val) is unicode:
-            if 'nan' in val:
-                return mpmath.mpc(real='nan',imag='nan')
-            real = None
-            imag = None
-            delim = None
-            if '+' in val[1:]:
-                delim = '+'
-            elif '-' in val[1:]:
-                delim = '-'
-            if delim is None:
-                if 'j' in val:
-                    imag = val.replace('j','')
-                else:
-                    real = val
-            else:
-                index = val[1:].find(delim) + 1
-                real = val[:index]
-                imag = val[index:].replace('j','')
-            return mpmath.mpc(real=real,imag=imag)
-        else:
-            return mpmath.mpc(val)
+        return mpmath.mpc(mpmath.mpmathify(val))
 
 ############### SYMPY CONVERSIONS ###############
 
