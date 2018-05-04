@@ -152,6 +152,12 @@ def percentile(a, q, axis=None, out=None, overwrite_input=False,
         return np.percentile(map(lambda v: mpc(v), a), q, axis, out, 
                              overwrite_input, interpolation, keepdims)
 
+def abs(x):
+    if mode == mode_python:
+        return builtins.abs(x)
+    else:
+        return mpmath.fabs(x)
+
 def pow(x, y):
     if mode == mode_python:
         return builtins.pow(x, y)
@@ -332,15 +338,28 @@ def det(mat):
 
 def sumElements(mat):
     if mode == mode_python:
-        XS = 0.0
+        sum = 0.0
         for x in np.nditer(mat, flags=['refs_ok']):
-            XS += x
+            sum += x
     else:
-        XS = mpmath.mpc(0.0)
+        sum = mpmath.mpc(0.0)
         for i in range(mat.rows):
             for j in range(mat.cols):
-                XS += mat[i,j]
-    return XS
+                sum += mat[i,j]
+    return sum
+
+def applyFunToElements(mat, funRef):
+    newMat = mat.copy()
+    if mode == mode_python:
+        for m in range(mat.shape[0]):
+            for n in range(mat.shape[1]):
+                newMat[i,j] = funRef(i, j, mat[i,j])
+    else:
+        sum = mpmath.mpc(0.0)
+        for i in range(mat.rows):
+            for j in range(mat.cols):
+                newMat[i,j] = funRef(i, j, mat[i,j])
+    return newMat
 
 def trace(mat):
     if mode == mode_python:
