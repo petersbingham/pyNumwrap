@@ -351,8 +351,8 @@ def sumElements(mat):
 def applyFunToElements(mat, funRef):
     newMat = mat.copy()
     if mode == mode_python:
-        for m in range(mat.shape[0]):
-            for n in range(mat.shape[1]):
+        for i in range(mat.shape[0]):
+            for j in range(mat.shape[1]):
                 newMat[i,j] = funRef(i, j, mat[i,j])
     else:
         sum = mpmath.mpc(0.0)
