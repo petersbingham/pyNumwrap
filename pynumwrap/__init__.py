@@ -37,7 +37,7 @@ typeLocked = False
 ################# Configuration Functions ################
 ##########################################################
 
-def usePythonTypes(dpsNew=dps_default_python):
+def use_python_types(dpsNew=dps_default_python):
     global mode, dps, pi, typeLocked
     if typeLocked:
         raise Exception("Type locked")
@@ -45,7 +45,7 @@ def usePythonTypes(dpsNew=dps_default_python):
     dps = dpsNew
     pi = cmath.pi
 
-def useMpmathTypes(dpsNew=dps_default_mpmath):
+def use_mpmath_types(dpsNew=dps_default_mpmath):
     global mode, dps, pi, typeLocked
     if typeLocked:
         raise Exception("Type locked")
@@ -54,17 +54,17 @@ def useMpmathTypes(dpsNew=dps_default_mpmath):
     pi = mpmath.pi
     mpmath.mp.dps = dps
 
-def setTypeMode(mode, dps=None):
+def set_type_mode(mode, dps=None):
     if mode is None or mode != mode_mpmath:
         if dps is None:
-            usePythonTypes(dps_default_python)
+            use_python_types(dps_default_python)
         else:
-            usePythonTypes(dps)
+            use_python_types(dps)
     else:
         if dps is None:
-            useMpmathTypes(dps_default_mpmath)
+            use_mpmath_types(dps_default_mpmath)
         else:
-            useMpmathTypes(dps)
+            use_mpmath_types(dps)
 
 def lockType():
     global typeLocked
@@ -110,34 +110,34 @@ def complex(val):
 
 ############### SYMPY CONVERSIONS ###############
 
-def toSympy(val):
+def to_sympy(val):
     if mode == mode_python:
         return val
     else:
         return sym.Float(str(val.real),dps) + sym.Float(str(val.imag),dps)*sym.I
 
-def fromSympy(val):
+def from_sympy(val):
     if mode == mode_python:
         return complex(val)
     else:
         a = sym.simplify(val)
         return mpmath.mpmathify(a)
 
-def toSympyMatrix(mat):
+def to_sympy_matrix(mat):
     if mode == mode_python:
         return sym.Matrix(mat)
     else:
-        symMat = sym.zeros(mat.rows, mat.cols)
+        sym_mat = sym.zeros(mat.rows, mat.cols)
         for r in range(mat.rows):
             for c in range(mat.cols):
                 symMat[r,c] = mat[r,c]
-        return symMat
+        return sym_mat
 
-def fromSympyMatrix(mat):
-    newMat = zeroMatrix(mat.shape[0], mat.shape[1])
+def from_sympy_matrix(mat):
+    newMat = zero_matrix(mat.shape[0], mat.shape[1])
     for r in range(mat.shape[0]):
         for c in range(mat.shape[0]):
-            newMat[r,c] = fromSympy(mat[r,c])
+            newMat[r,c] = from_sympy(mat[r,c])
     return newMat
 
 ############### BASIC OPERATIONS ###############
@@ -188,7 +188,7 @@ def polar(x):
     else:
         return mpmath.polar(x)
 
-def rootsSym(symPoly, **kwargs):
+def roots_sym(symPoly, **kwargs):
     if mode == mode_python:
         coeffs = symPoly.all_coeffs()
         mappedCoeffs = map(lambda val: complex(val), coeffs)
@@ -208,7 +208,7 @@ def matrix(val):
     else:
         return mpmath.matrix(val)
 
-def zeroMatrix(rows, cols=None):
+def zero_matrix(rows, cols=None):
     if cols is None:
         cols = rows
     if mode == mode_python:
@@ -236,22 +236,22 @@ def size(mat):
     else:
         return mat.rows*mat.cols
 
-def isSquare(mat):
+def is_square(mat):
     shp = shape(mat)
     return shp[0] == shp[1]
 
-def isIdentity(mat, rtol=1e-05, atol=1e-08):
-    if not isSquare(mat):
+def is_identity(mat, rtol=1e-05, atol=1e-08):
+    if not is_square(mat):
         return False
     iMat = identity(shape(mat)[0])
-    return areMatricesClose(iMat, mat, rtol, atol)
+    return are_matrices_close(iMat, mat, rtol, atol)
 
-def isUnitary(mat, rtol=1e-05, atol=1e-08):
-    if not isSquare(mat):
+def is_unitary(mat, rtol=1e-05, atol=1e-08):
+    if not is_square(mat):
         return False
     iMat = identity(shape(mat)[0])
     tcMat = transpose(conjugate(mat))
-    return areMatricesClose(iMat, mat*tcMat, rtol, atol)
+    return are_matrices_close(iMat, mat*tcMat, rtol, atol)
 
 ############### MATRIX OPERATIONS ###############
 
@@ -289,10 +289,10 @@ def dot(matA, matB):
     else:
         return matA * matB
 
-def unitaryOp(mat):
+def unitary_op(mat):
     return transpose(conjugate(mat))
 
-def getRow(mat, m):
+def get_row(mat, m):
     if mode == mode_python:
         return mat[m].tolist()[0]
     else:
@@ -301,7 +301,7 @@ def getRow(mat, m):
             row.append(mat[m,n])
         return row
 
-def getCol(mat, n):
+def get_col(mat, n):
     if mode == mode_python:
         return mat[:,n].tolist()[0]
     else:
@@ -310,17 +310,17 @@ def getCol(mat, n):
             row.append(mat[m,n])
         return col
 
-def getVector(mat, i, isCol=False):
-    if not isCol:
-        vec = getRow(mat, i)
+def get_vector(mat, i, is_col=False):
+    if not is_col:
+        vec = get_row(mat, i)
     else:
-        vec = getCol(mat, i)
+        vec = get_col(mat, i)
     if mode == mode_python:
         return np.array(vec)
     else:
         return mpmath.matrix(vec)
 
-def copyRow(src_mat, dest_mat, m):
+def copy_row(src_mat, dest_mat, m):
     newMat = dest_mat.copy()
     if mode == mode_python:
         for n in range(newMat.shape[1]):
@@ -336,7 +336,7 @@ def det(mat):
     else:
         return mpmath.det(mat)
 
-def sumElements(mat):
+def sum_elements(mat):
     if mode == mode_python:
         sum = 0.0
         for x in np.nditer(mat, flags=['refs_ok']):
@@ -348,17 +348,17 @@ def sumElements(mat):
                 sum += mat[i,j]
     return sum
 
-def applyFunToElements(mat, funRef):
+def apply_fun_to_elements(mat, fun_ref):
     newMat = mat.copy()
     if mode == mode_python:
         for i in range(mat.shape[0]):
             for j in range(mat.shape[1]):
-                newMat[i,j] = funRef(i, j, mat[i,j])
+                newMat[i,j] = fun_ref(i, j, mat[i,j])
     else:
         sum = mpmath.mpc(0.0)
         for i in range(mat.rows):
             for j in range(mat.cols):
-                newMat[i,j] = funRef(i, j, mat[i,j])
+                newMat[i,j] = fun_ref(i, j, mat[i,j])
     return newMat
 
 def trace(mat):
@@ -370,7 +370,7 @@ def trace(mat):
             t += mat[i,i]
         return t
 
-def atanElements(mat):
+def atan_elements(mat):
     if mode == mode_python:
         return np.arctan(mat)
     else:
@@ -381,8 +381,8 @@ def atanElements(mat):
         return at
 
 def adjugate(mat):
-    symMat = toSympyMatrix(mat)
-    return fromSympyMatrix(symMat.adjugate())
+    sym_mat = to_sympy_matrix(mat)
+    return from_sympy_matrix(sym_mat.adjugate())
 
 def lin_solve(mat, vec):
     if mode == mode_python:
@@ -409,7 +409,7 @@ def diagonalise(mat):
 
 ############### MATRIX COMPARISONS ###############
 
-def areMatricesClose(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
+def are_matrices_close(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
     if mode == mode_python:
         return np.allclose(mat1, mat2, rtol, atol, equal_nan)
     else:
@@ -421,31 +421,31 @@ def areMatricesClose(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
                 b = mat2[r,c]
                 if mpmath.isnan(a) and mpmath.isnan(b) and equal_nan:
                     pass
-                elif not numCmp(a, b, atol, rtol):
+                elif not num_cmp(a, b, atol, rtol):
                     return False
     return True
 
 ############### OTHER ###############
 
-def formattedFloatString(val, dps):
+def formatted_float_string(val, dps):
     if mode == mode_python:
         return ("{:1."+str(dps)+"f}").format(val)
     else:
-        return mpmath.nstr(val, mpIntDigits(val)+dps)
+        return mpmath.nstr(val, mp_int_digits(val)+dps)
 
-def formattedComplexString(val, dps):
+def formatted_complex_string(val, dps):
     if val.imag < 0.0:
         signStr = ""
     else:
         signStr = "+"
-    rstr = formattedFloatString(val.real, dps)
-    istr = formattedFloatString(val.imag, dps)+"j"
+    rstr = formatted_float_string(val.real, dps)
+    istr = formatted_float_string(val.imag, dps)+"j"
     return rstr + signStr + istr
 
-def floatList(lst):
+def float_list(lst):
     return str(map(lambda x:str(x),lst)).replace("'","")
 
-def mpIntDigits(num):
+def mp_int_digits(num):
     if not mpmath.almosteq(num,0):
         a = mpmath.log(abs(num), b=10)
         b = mpmath.nint(a)
@@ -460,10 +460,10 @@ def mpIntDigits(num):
     else:
         return 0
 
-def numCmp(a, b, atol, rtol):
+def num_cmp(a, b, atol, rtol):
     return abs(a-b) <= atol + rtol * abs(b)
 
-def getArgDesc(func, args, ignore=None):
+def get_arg_desc(func, args, ignore=None):
     a = inspect.getargspec(func)
     if a.defaults is not None:
         d = dict(zip(a.args[-len(a.defaults):],a.defaults))
