@@ -134,11 +134,11 @@ def to_sympy_matrix(mat):
         return sym_mat
 
 def from_sympy_matrix(mat):
-    newMat = zero_matrix(mat.shape[0], mat.shape[1])
+    new_mat = zero_matrix(mat.shape[0], mat.shape[1])
     for r in range(mat.shape[0]):
         for c in range(mat.shape[0]):
-            newMat[r,c] = from_sympy(mat[r,c])
-    return newMat
+            new_mat[r,c] = from_sympy(mat[r,c])
+    return new_mat
 
 ############### BASIC OPERATIONS ###############
 
@@ -191,8 +191,8 @@ def polar(x):
 def roots_sym(symPoly, **kwargs):
     if mode == mode_python:
         coeffs = symPoly.all_coeffs()
-        mappedCoeffs = map(lambda val: complex(val), coeffs)
-        return np.roots(mappedCoeffs)
+        mapped_coeffs = map(lambda val: complex(val), coeffs)
+        return np.roots(mapped_coeffs)
     else:
         if "symPoly_nroots" in kwargs:
             roots = symPoly.nroots(**kwargs["symPoly_nroots"])
@@ -243,15 +243,15 @@ def is_square(mat):
 def is_identity(mat, rtol=1e-05, atol=1e-08):
     if not is_square(mat):
         return False
-    iMat = identity(shape(mat)[0])
-    return are_matrices_close(iMat, mat, rtol, atol)
+    i_mat = identity(shape(mat)[0])
+    return are_matrices_close(i_mat, mat, rtol, atol)
 
 def is_unitary(mat, rtol=1e-05, atol=1e-08):
     if not is_square(mat):
         return False
-    iMat = identity(shape(mat)[0])
+    i_mat = identity(shape(mat)[0])
     tcMat = transpose(conjugate(mat))
-    return are_matrices_close(iMat, mat*tcMat, rtol, atol)
+    return are_matrices_close(i_mat, mat*tcMat, rtol, atol)
 
 ############### MATRIX OPERATIONS ###############
 
@@ -259,11 +259,11 @@ def absolute(mat):
     if mode == mode_python:
         return np.absolute(mat)
     else:
-        absMat = mpmath.matrix(mat.rows, mat.cols)
+        abs_mat = mpmath.matrix(mat.rows, mat.cols)
         for i in range(mat.rows):
             for j in range(mat.cols):
-                absMat[i,j] = abs(mat[i,j])
-        return absMat
+                abs_mat[i,j] = abs(mat[i,j])
+        return abs_mat
 
 def transpose(mat):
     if mode == mode_python:
@@ -321,14 +321,14 @@ def get_vector(mat, i, is_col=False):
         return mpmath.matrix(vec)
 
 def copy_row(src_mat, dest_mat, m):
-    newMat = dest_mat.copy()
+    new_mat = dest_mat.copy()
     if mode == mode_python:
-        for n in range(newMat.shape[1]):
-            newMat[m,n] = src_mat[m,n]
+        for n in range(new_mat.shape[1]):
+            new_mat[m,n] = src_mat[m,n]
     else:
-        for n in range(newMat.cols):
-            newMat[m,n] = src_mat[m,n]
-    return newMat
+        for n in range(new_mat.cols):
+            new_mat[m,n] = src_mat[m,n]
+    return new_mat
 
 def det(mat):
     if mode == mode_python:
@@ -349,17 +349,17 @@ def sum_elements(mat):
     return sum
 
 def apply_fun_to_elements(mat, fun_ref):
-    newMat = mat.copy()
+    new_mat = mat.copy()
     if mode == mode_python:
         for i in range(mat.shape[0]):
             for j in range(mat.shape[1]):
-                newMat[i,j] = fun_ref(i, j, mat[i,j])
+                new_mat[i,j] = fun_ref(i, j, mat[i,j])
     else:
         sum = mpmath.mpc(0.0)
         for i in range(mat.rows):
             for j in range(mat.cols):
-                newMat[i,j] = fun_ref(i, j, mat[i,j])
-    return newMat
+                new_mat[i,j] = fun_ref(i, j, mat[i,j])
+    return new_mat
 
 def trace(mat):
     if mode == mode_python:
@@ -399,11 +399,11 @@ def lin_solve_homo(mat):
 
 def diagonalise(mat):
     if mode == mode_python:
-        w, v = np.linalg.eig(mat)
+        _, v = np.linalg.eig(mat)
         P = np.transpose(np.matrix(v, dtype=np.complex128))
         return np.dot(P, np.dot(mat, np.linalg.inv(P)))
     else:
-        w, v = mpmath.eig(mat)
+        _, v = mpmath.eig(mat)
         P = mpmath.matrix(v).T
         return P * mat * P**-1
 
@@ -435,12 +435,12 @@ def formatted_float_string(val, dps):
 
 def formatted_complex_string(val, dps):
     if val.imag < 0.0:
-        signStr = ""
+        sign_str = ""
     else:
-        signStr = "+"
+        sign_str = "+"
     rstr = formatted_float_string(val.real, dps)
     istr = formatted_float_string(val.imag, dps)+"j"
-    return rstr + signStr + istr
+    return rstr + sign_str + istr
 
 def float_list(lst):
     return str(map(lambda x:str(x),lst)).replace("'","")
@@ -470,15 +470,15 @@ def get_arg_desc(func, args, ignore=None):
     else:
         d = {}
     d.update(args)
-    argStr = "("
+    arg_str = "("
     first = True
     for arg in a.args:
         if arg in d:
             if ignore is None or arg not in ignore:
                 if not first:
-                    argStr += ","
+                    arg_str += ","
                 else:
                     first = False
-                argStr += arg + " " + str(d[arg])
-    argStr += ")"
-    return argStr
+                arg_str += arg + " " + str(d[arg])
+    arg_str += ")"
+    return arg_str
