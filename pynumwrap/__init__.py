@@ -106,7 +106,15 @@ def complex(val):
     if mode == mode_python:
         return builtins.complex(val)
     else:
-        return mpmath.mpc(mpmath.mpmathify(val))
+        try:
+            return mpmath.mpc(mpmath.mpmathify(val))
+        except TypeError:
+            # Exception in earlier versions of sympy (and possibly mpmath).
+            # See https://stackoverflow.com/questions/49211887/convert-a-sympy-poly-with-imaginary-powers-to-an-mpmath-mpc
+            comps = val.args[0]
+            real = sym.re(comps)
+            imag = sym.im(comps)
+            return mpmath.mpc(real,imag)
 
 ############### SYMPY CONVERSIONS ###############
 
@@ -198,7 +206,7 @@ def roots_sym(symPoly, **kwargs):
             roots = symPoly.nroots(**kwargs["symPoly_nroots"])
         else:
             roots = symPoly.nroots()
-        return map(lambda val: mpmath.mpc(val), roots)
+        return map(lambda val: complex(val), roots)
 
 ############### MATRIX TYPES ###############
 
