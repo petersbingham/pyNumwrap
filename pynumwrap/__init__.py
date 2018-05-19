@@ -106,15 +106,7 @@ def complex(val):
     if mode == mode_python:
         return builtins.complex(val)
     else:
-        try:
-            return mpmath.mpc(mpmath.mpmathify(val))
-        except TypeError:
-            # Exception in earlier versions of sympy (and possibly mpmath).
-            # See https://stackoverflow.com/questions/49211887/convert-a-sympy-poly-with-imaginary-powers-to-an-mpmath-mpc
-            comps = val.args[0]
-            real = sym.re(comps)
-            imag = sym.im(comps)
-            return mpmath.mpc(real,imag)
+        return mpmath.mpc(mpmath.mpmathify(val))
 
 ############### SYMPY CONVERSIONS ###############
 
@@ -125,11 +117,19 @@ def to_sympy(val):
         return sym.Float(str(val.real),dps) + sym.Float(str(val.imag),dps)*sym.I
 
 def from_sympy(val):
+    sval = sym.simplify(val)
     if mode == mode_python:
-        return complex(val)
+        return complex(sval)
     else:
-        a = sym.simplify(val)
-        return mpmath.mpmathify(a)
+        try:
+            return complex(sval)
+        except TypeError:
+            # Exception in earlier versions of sympy (and possibly mpmath).
+            # See https://stackoverflow.com/questions/49211887/convert-a-sympy-poly-with-imaginary-powers-to-an-mpmath-mpc
+            comps = sval.subs('I',1.0j)
+            real = sym.re(comps)
+            imag = sym.im(comps)
+            return mpmath.mpc(real,imag)
 
 def to_sympy_matrix(mat):
     if mode == mode_python:
@@ -199,14 +199,14 @@ def polar(x):
 def roots_sym(symPoly, **kwargs):
     if mode == mode_python:
         coeffs = symPoly.all_coeffs()
-        mapped_coeffs = map(lambda val: complex(val), coeffs)
+        mapped_coeffs = map(lambda val: from_sympy(val), coeffs)
         return np.roots(mapped_coeffs)
     else:
         if "symPoly_nroots" in kwargs:
             roots = symPoly.nroots(**kwargs["symPoly_nroots"])
         else:
             roots = symPoly.nroots()
-        return map(lambda val: complex(val), roots)
+        return map(lambda val: from_sympy(val), roots)
 
 ############### MATRIX TYPES ###############
 
