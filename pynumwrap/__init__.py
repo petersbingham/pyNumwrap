@@ -258,8 +258,7 @@ def is_unitary(mat, rtol=1e-05, atol=1e-08):
     if not is_square(mat):
         return False
     i_mat = identity(shape(mat)[0])
-    tcMat = transpose(conjugate(mat))
-    return are_matrices_close(i_mat, mat*tcMat, rtol, atol)
+    return are_matrices_close(i_mat, unitary_op(mat), rtol, atol)
 
 ############### MATRIX OPERATIONS ###############
 
@@ -298,7 +297,7 @@ def dot(matA, matB):
         return matA * matB
 
 def unitary_op(mat):
-    return transpose(conjugate(mat))
+    return transpose(conjugate(mat)) * mat
 
 def get_row(mat, m):
     if mode == mode_python:
