@@ -434,58 +434,41 @@ def are_matrices_close(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
 
 ############### OTHER ###############
 
-def formatted_float_string(val, dps):
-    if mode == mode_python:
-        return ("{:1."+str(dps)+"f}").format(val)
-    else:
-        return mpmath.nstr(val, mp_int_digits(val)+dps)
+# See mpmath doc for kwargs description. Appears to be an mpmath bug where
+# kwargs do not apply correctly to real and imag component, so split here.
+# To always use floating-point format (eg 1.0 -> 1.0e+0) use kwargs:
+# min_fixed >= max_fixed. Always fixed min_fixed = -inf and max_fixed = +inf
+def num_str_pair(val, sig_digits=15, strip_zeros=False, min_fixed=-3,
+                 max_fixed=3, show_zero_exponent=False): 
+    val2 = mpmath.mpc(val)
+    real_str = mpmath.nstr(val2.real, sig_digits, strip_zeros=strip_zeros,
+                           min_fixed=min_fixed, max_fixed=max_fixed,
+                           show_zero_exponent=show_zero_exponent)
+    imag_str = mpmath.nstr(val2.imag, sig_digits, strip_zeros=strip_zeros,
+                           min_fixed=min_fixed, max_fixed=max_fixed,
+                           show_zero_exponent=show_zero_exponent)
+    return real_str, imag_str
 
-def formatted_complex_string(val, dps):
-    if val.imag < 0.0:
-        sign_str = ""
-    else:
-        sign_str = "+"
-    rstr = formatted_float_string(val.real, dps)
-    istr = formatted_float_string(val.imag, dps)+"j"
-    return rstr + sign_str + istr
+def num_str(val, sig_digits=15, strip_zeros=False, min_fixed=-3, max_fixed=3,
+            show_zero_exponent=False):
+    ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
+                       show_zero_exponent)
+    imag_str = ret[1]
+    if imag_str[0] != '-':
+        imag_str = '+' + imag_str
+    return ret[0] + imag_str+'j'
 
-def float_list(lst):
-    return str(map(lambda x:str(x),lst)).replace("'","")
+def num_str_real(val, sig_digits=15, strip_zeros=False, min_fixed=-4,
+                 max_fixed=4, show_zero_exponent=False):
+    ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
+                       show_zero_exponent)
+    return ret[0]
 
-def mp_int_digits(num):
-    if not mpmath.almosteq(num,0):
-        a = mpmath.log(abs(num), b=10)
-        b = mpmath.nint(a)
-        if mpmath.almosteq(a,b):
-            return int(b)+1
-        else:
-            c = mpmath.ceil(a)
-            try:
-                return int(c)
-            except:
-                pass
-    else:
-        return 0
+def num_st_imag(val, sig_digits=15, strip_zeros=False, min_fixed=-3,
+                max_fixed=3, show_zero_exponent=False):
+    ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
+                       show_zero_exponent)
+    return ret[1]
 
 def num_cmp(a, b, atol, rtol):
     return abs(a-b) <= atol + rtol * abs(b)
-
-def get_arg_desc(func, args, ignore=None):
-    a = inspect.getargspec(func)
-    if a.defaults is not None:
-        d = dict(zip(a.args[-len(a.defaults):],a.defaults))
-    else:
-        d = {}
-    d.update(args)
-    arg_str = "("
-    first = True
-    for arg in a.args:
-        if arg in d:
-            if ignore is None or arg not in ignore:
-                if not first:
-                    arg_str += ","
-                else:
-                    first = False
-                arg_str += arg + " " + str(d[arg])
-    arg_str += ")"
-    return arg_str
