@@ -434,40 +434,49 @@ def are_matrices_close(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
 
 ############### OTHER ###############
 
+def _check_eff_zero(num, num_str, eff_zero):
+    if eff_zero:
+        if num < eff_zero:
+            lt_exp = int(num_str.split('e')) + 1
+            num_str = "<-e"+str(lt_exp)
+    return num_str
+
 # See mpmath doc for kwargs description. Appears to be an mpmath bug where
 # kwargs do not apply correctly to real and imag component, so split here.
 # To always use floating-point format (eg 1.0 -> 1.0e+0) use kwargs:
 # min_fixed >= max_fixed. Always fixed min_fixed = -inf and max_fixed = +inf
 def num_str_pair(val, sig_digits=15, strip_zeros=False, min_fixed=-3,
-                 max_fixed=3, show_zero_exponent=False): 
+                 max_fixed=3, show_zero_exponent=False, eff_zero=None): 
     val2 = mpmath.mpc(val)
     real_str = mpmath.nstr(val2.real, sig_digits, strip_zeros=strip_zeros,
                            min_fixed=min_fixed, max_fixed=max_fixed,
                            show_zero_exponent=show_zero_exponent)
+    real_str = _check_eff_zero(val2.real, real_str, eff_zero)
     imag_str = mpmath.nstr(val2.imag, sig_digits, strip_zeros=strip_zeros,
                            min_fixed=min_fixed, max_fixed=max_fixed,
                            show_zero_exponent=show_zero_exponent)
+    imag_str = _check_eff_zero(val2.imag, imag_str, eff_zero)
     return real_str, imag_str
 
 def num_str(val, sig_digits=15, strip_zeros=False, min_fixed=-3, max_fixed=3,
-            show_zero_exponent=False):
+            show_zero_exponent=False, eff_zero=None):
     ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
-                       show_zero_exponent)
+                       show_zero_exponent, eff_zero)
     imag_str = ret[1]
     if imag_str[0] != '-':
         imag_str = '+' + imag_str
     return ret[0] + imag_str+'j'
 
 def num_str_real(val, sig_digits=15, strip_zeros=False, min_fixed=-4,
-                 max_fixed=4, show_zero_exponent=False):
+                 max_fixed=4, show_zero_exponent=False, eff_zero=None):
     ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
-                       show_zero_exponent)
+                       show_zero_exponent, eff_zero)
     return ret[0]
 
 def num_st_imag(val, sig_digits=15, strip_zeros=False, min_fixed=-3,
-                max_fixed=3, show_zero_exponent=False):
+                max_fixed=3, show_zero_exponent=False, eff_zero=None):
     ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
-                       show_zero_exponent)
+                       show_zero_exponent, eff_zero)
     return ret[1]
 
 def num_cmp(a, b, atol, rtol):
