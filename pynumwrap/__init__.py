@@ -434,9 +434,9 @@ def are_matrices_close(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
 
 ############### OTHER ###############
 
-def _check_z_tol(num, num_str, z_tol):
-    if z_tol:
-        if abs(num) < z_tol:
+def _check_ztol(num, num_str, ztol):
+    if ztol:
+        if abs(num) < ztol:
             num_str = "0"
     return num_str
 
@@ -445,37 +445,37 @@ def _check_z_tol(num, num_str, z_tol):
 # To always use floating-point format (eg 1.0 -> 1.0e+0) use kwargs:
 # min_fixed >= max_fixed. Always fixed min_fixed = -inf and max_fixed = +inf
 def num_str_pair(val, sig_digits=15, strip_zeros=False, min_fixed=-3,
-                 max_fixed=3, show_zero_exponent=False, z_tol=None): 
+                 max_fixed=3, show_zero_exponent=False, ztol=None): 
     val2 = mpmath.mpc(val)
     real_str = mpmath.nstr(val2.real, sig_digits, strip_zeros=strip_zeros,
                            min_fixed=min_fixed, max_fixed=max_fixed,
                            show_zero_exponent=show_zero_exponent)
-    real_str = _check_z_tol(val2.real, real_str, z_tol)
+    real_str = _check_ztol(val2.real, real_str, ztol)
     imag_str = mpmath.nstr(val2.imag, sig_digits, strip_zeros=strip_zeros,
                            min_fixed=min_fixed, max_fixed=max_fixed,
                            show_zero_exponent=show_zero_exponent)
-    imag_str = _check_z_tol(val2.imag, imag_str, z_tol)
+    imag_str = _check_ztol(val2.imag, imag_str, ztol)
     return real_str, imag_str
 
 def num_str(val, sig_digits=15, strip_zeros=False, min_fixed=-3, max_fixed=3,
-            show_zero_exponent=False, z_tol=None):
+            show_zero_exponent=False, ztol=None):
     ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
-                       show_zero_exponent, z_tol)
+                       show_zero_exponent, ztol)
     imag_str = ret[1]
     if imag_str[0] != '-':
         imag_str = '+' + imag_str
     return ret[0] + imag_str+'j'
 
 def num_str_real(val, sig_digits=15, strip_zeros=False, min_fixed=-4,
-                 max_fixed=4, show_zero_exponent=False, z_tol=None):
+                 max_fixed=4, show_zero_exponent=False, ztol=None):
     ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
-                       show_zero_exponent, z_tol)
+                       show_zero_exponent, ztol)
     return ret[0]
 
 def num_st_imag(val, sig_digits=15, strip_zeros=False, min_fixed=-3,
-                max_fixed=3, show_zero_exponent=False, z_tol=None):
+                max_fixed=3, show_zero_exponent=False, ztol=None):
     ret = num_str_pair(val, sig_digits, strip_zeros, min_fixed, max_fixed,
-                       show_zero_exponent, z_tol)
+                       show_zero_exponent, ztol)
     return ret[1]
 
 def num_cmp(a, b, atol, rtol):

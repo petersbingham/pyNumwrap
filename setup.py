@@ -5,7 +5,7 @@ import shutil
 shutil.copy('README.md', 'pynumwrap/README.md')
 
 setup(name='pynumwrap',
-      version='0.27',
+      version='0.28',
       description='Python package wrapping python and mpmath types behind a common interface.',
       author="Peter Bingham",
       author_email="petersbingham@hotmail.co.uk",
