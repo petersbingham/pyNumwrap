@@ -301,31 +301,36 @@ def unitary_op(mat):
 
 def get_row(mat, m):
     if mode == mode_python:
-        return mat[m].tolist()[0]
+        return np.array(mat[m].tolist()[0])
     else:
         row = []
         for n in range(mat.cols):
             row.append(mat[m,n])
-        return row
+        return mpmath.matrix(row)
 
 def get_col(mat, n):
     if mode == mode_python:
-        return mat[:,n].tolist()[0]
+        return np.array(mat[:,n].tolist()[0])
     else:
         col = []
         for m in range(mat.rows):
-            row.append(mat[m,n])
-        return col
+            col.append(mat[m,n])
+        return mpmath.matrix(col)
+
+def get_diag(mat):
+    if mode == mode_python:
+        return mat.diagonal()
+    else:
+        diag = []
+        for m in range(mat.rows):
+            diag.append(mat[m,m])
+        return mpmath.matrix(diag)
 
 def get_vector(mat, i, is_col=False):
     if not is_col:
-        vec = get_row(mat, i)
+        return get_row(mat, i)
     else:
-        vec = get_col(mat, i)
-    if mode == mode_python:
-        return np.array(vec)
-    else:
-        return mpmath.matrix(vec)
+        return get_col(mat, i)
 
 def copy_row(src_mat, dest_mat, m):
     new_mat = dest_mat.copy()
@@ -411,8 +416,7 @@ def diagonalise(mat):
         return np.dot(P, np.dot(mat, np.linalg.inv(P)))
     else:
         _, v = mpmath.eig(mat)
-        P = mpmath.matrix(v).T
-        return P * mat * P**-1
+        return v**-1 * mat * v
 
 ############### MATRIX COMPARISONS ###############
 
