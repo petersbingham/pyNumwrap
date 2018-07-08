@@ -326,8 +326,8 @@ def get_diag(mat):
             diag.append(mat[m,m])
         return mpmath.matrix(diag)
 
-def get_vector(mat, i, is_col=False):
-    if not is_col:
+def get_vector(mat, i, col=False):
+    if not col:
         return get_row(mat, i)
     else:
         return get_col(mat, i)
