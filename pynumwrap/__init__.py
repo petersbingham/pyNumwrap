@@ -284,6 +284,9 @@ def conjugate(mat):
     else:
         return mat.conjugate()
 
+def dagger(mat):
+    return transpose(conjugate(mat))
+
 def invert(mat):
     if mode == mode_python:
         return np.linalg.inv(mat)
@@ -417,6 +420,14 @@ def diagonalise(mat):
     else:
         _, v = mpmath.eig(mat)
         return v**-1 * mat * v
+
+def eigenvalues(mat):
+    if mode == mode_python:
+        e, _ = np.linalg.eig(mat)
+        return e
+    else:
+        e, _ = mpmath.eig(mat)
+        return mpmath.matrix(e)
 
 ############### MATRIX COMPARISONS ###############
 
