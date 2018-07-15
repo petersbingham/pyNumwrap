@@ -150,15 +150,12 @@ def from_sympy_matrix(mat):
 
 ############### BASIC OPERATIONS ###############
 
-def percentile(a, q, axis=None, out=None, overwrite_input=False,
-               interpolation='linear', keepdims=False):
-    # Currently don't support percentile for mp types. Just convert the type.
-    if mode == mode_python:
-        return np.percentile(a, q, axis, out, overwrite_input, interpolation,
-                             keepdims)
-    else:
-        return np.percentile(map(lambda v: mpc(v), a), q, axis, out, 
-                             overwrite_input, interpolation, keepdims)
+def _app_to_mpmath(x, fun):
+    try:
+        len(x) # Determine if simple type or matrix.
+        return apply_fun_to_elements(x, lambda i,j,x:fun(x))
+    except TypeError:
+        return fun(x)
 
 def abs(x):
     if mode == mode_python:
@@ -174,22 +171,36 @@ def pow(x, y):
 
 def exp(x):
     if mode == mode_python:
-        return cmath.exp(x)
+        return np.exp(x)
     else:
-        return mpmath.exp(x)
+        return _app_to_mpmath(x, mpmath.exp)
 
 def sqrt(x):
     if mode == mode_python:
-        return cmath.sqrt(x)
+        return np.lib.scimath.sqrt(x) # This version OK with neg nums.
     else:
-        return mpmath.sqrt(x)
+        return _app_to_mpmath(x, mpmath.sqrt)
 
 def tan(x):
     if mode == mode_python:
-        return cmath.tan(x)
+        return np.tan(x)
     else:
-        return mpmath.tan(x)
+        return _app_to_mpmath(x, mpmath.tan)
 
+def arctan(x):
+    if mode == mode_python:
+        return np.arctan(x)
+    else:
+        return _app_to_mpmath(x, mpmath.atan)
+
+def log(x):
+    if mode == mode_python:
+        return np.log(x)
+    else:
+        return _app_to_mpmath(x, mpmath.log)
+
+# Currently does not support matrix types. Prob is that np.matrices cannot
+# the hold sequences that polar returns.
 def polar(x):
     if mode == mode_python:
         return cmath.polar(x)
@@ -207,6 +218,16 @@ def roots_sym(symPoly, **kwargs):
         else:
             roots = symPoly.nroots()
         return map(lambda val: from_sympy(val), roots)
+
+def percentile(a, q, axis=None, out=None, overwrite_input=False,
+               interpolation='linear', keepdims=False):
+    # Currently don't support percentile for mp types. Just convert the type.
+    if mode == mode_python:
+        return np.percentile(a, q, axis, out, overwrite_input, interpolation,
+                             keepdims)
+    else:
+        return np.percentile(map(lambda v: mpc(v), a), q, axis, out, 
+                             overwrite_input, interpolation, keepdims)
 
 ############### MATRIX TYPES ###############
 
