@@ -229,11 +229,24 @@ def percentile(a, q, axis=None, out=None, overwrite_input=False,
         return np.percentile(map(lambda v: mpc(v), a), q, axis, out, 
                              overwrite_input, interpolation, keepdims)
 
+def gradient(f, varargs):
+    reals = map(lambda x:x.real, f)
+    imags = map(lambda x:x.imag, f)
+    real_grads = np.gradient(reals, varargs)
+    imag_grads = np.gradient(imags, varargs)
+    return [real_grads[i]+imag_grads[i]*1.j for i in range(len(real_grads))]
+
 ############### MATRIX TYPES ###############
 
 def matrix(val):
     if mode == mode_python:
         return np.matrix(val, dtype=np.complex128)
+    else:
+        return mpmath.matrix(val)
+
+def vector(val):
+    if mode == mode_python:
+        return np.array(val)
     else:
         return mpmath.matrix(val)
 
