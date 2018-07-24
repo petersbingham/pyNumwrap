@@ -455,12 +455,18 @@ def diagonalise(mat):
         _, v = mpmath.eig(mat)
         return v**-1 * mat * v
 
-def eigenvalues(mat):
+def eigenvalues(mat, sort=True):
     if mode == mode_python:
         e, _ = np.linalg.eig(mat)
-        return e
+        if sort:
+            idx = np.argsort(e)
+            return e[idx]
+        else:
+            return e
     else:
-        e, _ = mpmath.eig(mat)
+        e, v = mpmath.eig(mat)
+        if sort:
+            e, v = mpmath.eig_sort(e, v)
         return mpmath.matrix(e)
 
 ############### MATRIX COMPARISONS ###############
