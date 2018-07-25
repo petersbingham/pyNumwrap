@@ -268,7 +268,10 @@ def identity(sz):
     
 def shape(mat):
     if mode == mode_python:
-        return mat.shape
+        shp = mat.shape
+        if len(shp) == 1:
+            return (1, shp[0])
+        return shp
     else:
         return (mat.rows, mat.cols)
 
@@ -336,22 +339,22 @@ def dot(matA, matB):
 def unitary_op(mat):
     return transpose(conjugate(mat)) * mat
 
-def get_row(mat, m):
+def get_row(mat, i):
     if mode == mode_python:
-        return np.array(mat[m].tolist()[0])
+        return np.array(mat[i].tolist()[0])
     else:
         row = []
-        for n in range(mat.cols):
-            row.append(mat[m,n])
-        return mpmath.matrix(row)
+        for j in range(mat.cols):
+            row.append(mat[i,j])
+        return mpmath.matrix([row])
 
-def get_col(mat, n):
+def get_col(mat, j):
     if mode == mode_python:
-        return np.array(mat[:,n].tolist()[0])
+        return np.array(mat[:,j].tolist())
     else:
         col = []
-        for m in range(mat.rows):
-            col.append(mat[m,n])
+        for i in range(mat.rows):
+            col.append(mat[i,j])
         return mpmath.matrix(col)
 
 def get_diag(mat):
@@ -361,7 +364,7 @@ def get_diag(mat):
         diag = []
         for m in range(mat.rows):
             diag.append(mat[m,m])
-        return mpmath.matrix(diag)
+        return mpmath.matrix([diag])
 
 def get_vector(mat, i, col=False):
     if not col:
@@ -475,12 +478,17 @@ def are_matrices_close(mat1, mat2, rtol=1e-05, atol=1e-08, equal_nan=False):
     if mode == mode_python:
         return np.allclose(mat1, mat2, rtol, atol, equal_nan)
     else:
-        if shape(mat1) != shape(mat2):
+        # Just make sure we have matrices and not lists. np.allclose supports
+        # lists. List support is useful for tests as can have test data that is
+        # common to both representations in list form.
+        mat1_ = matrix(mat1)
+        mat2_ = matrix(mat2)
+        if shape(mat1_) != shape(mat2_):
             return False
-        for r in range(mat1.rows):
-            for c in range(mat1.cols):
-                a = mat1[r,c]
-                b = mat2[r,c]
+        for r in range(mat1_.rows):
+            for c in range(mat1_.cols):
+                a = mat1_[r,c]
+                b = mat2_[r,c]
                 if mpmath.isnan(a) and mpmath.isnan(b) and equal_nan:
                     pass
                 elif not num_cmp(a, b, atol, rtol):
