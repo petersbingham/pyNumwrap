@@ -21,8 +21,8 @@ except:
 
 mode_python = 0
 mode_mpmath = 1
-dps_default_python = 25
-dps_default_mpmath = 100
+dps_default_python = 16
+dps_default_mpmath = 34
 
 ##########################################################
 ####################### Variables ########################
