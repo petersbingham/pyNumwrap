@@ -37,29 +37,31 @@ typeLocked = False
 ################# Configuration Functions ################
 ##########################################################
 
-def use_python_types(dpsNew=dps_default_python):
+def use_python_types():
     global mode, dps, pi, typeLocked
     if typeLocked:
         raise Exception("Type locked")
     mode = mode_python
-    dps = dpsNew
+    dps = dps_default_python
     pi = cmath.pi
 
-def use_mpmath_types(dpsNew=dps_default_mpmath):
-    global mode, dps, pi, typeLocked
+# Resolves name conflict for dps in the public functions.
+def _set_dps(newdps):
+    global dps
+    dps = newdps
+
+def use_mpmath_types(dps=dps_default_mpmath):
+    _set_dps(dps)
+    global mode, pi, typeLocked
     if typeLocked:
         raise Exception("Type locked")
     mode = mode_mpmath
-    dps = dpsNew
     pi = mpmath.pi
     mpmath.mp.dps = dps
 
 def set_type_mode(mode, dps=None):
     if mode is None or mode != mode_mpmath:
-        if dps is None:
-            use_python_types(dps_default_python)
-        else:
-            use_python_types(dps)
+        use_python_types()
     else:
         if dps is None:
             use_mpmath_types(dps_default_mpmath)
