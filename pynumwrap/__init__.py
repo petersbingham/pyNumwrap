@@ -2,18 +2,9 @@
 import inspect
 from six.moves import builtins
 import cmath
-try:
-    import mpmath
-except:
-    pass
-try:
-    import numpy as np
-except:
-    pass
-try:
-    import sympy as sym
-except:
-    pass
+import mpmath
+import numpy as np
+import sympy as sym
 
 ##########################################################
 ####################### Constants ########################
@@ -74,7 +65,7 @@ def lockType():
 
 def getConfigString():
     if mode == mode_python:
-        return "numpy"
+        return "python"
     else:
         return "mpmath_"+str(dps)
 

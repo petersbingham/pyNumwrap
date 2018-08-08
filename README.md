@@ -10,7 +10,7 @@ Clone the repository and install with the following commands:
     python setup.py install
     
 ## Dependencies
-Third party packages (optional, depending on usage): 
+Third party packages: 
  - numpy
  - mpmath
  - sympy
