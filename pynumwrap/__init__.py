@@ -442,14 +442,19 @@ def lin_solve_homo(mat):
     else:
         raise NotImplementedError
 
-def diagonalise(mat):
+def diagonalise(mat, sort=True):
     if mode == mode_python:
-        _, v = np.linalg.eig(mat)
+        e, v = np.linalg.eig(mat)
+        if sort:
+            idx = e.argsort()[::-1]
+            v = v[:,idx]
         P = np.transpose(np.matrix(v, dtype=np.complex128))
         return np.dot(P, np.dot(mat, np.linalg.inv(P)))
     else:
-        _, v = mpmath.eig(mat)
-        return v**-1 * mat * v
+        e, vl, vr = mpmath.eig(mat, True, True)
+        if sort:
+            e, vl, vr = mpmath.eig_sort(e, vl, vr)
+        return vr**-1 * mat * vr
 
 def eigenvalues(mat, sort=True):
     if mode == mode_python:
