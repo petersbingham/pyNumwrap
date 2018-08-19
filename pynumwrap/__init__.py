@@ -5,6 +5,7 @@ import cmath
 import mpmath
 import numpy as np
 import sympy as sym
+from pynumwrap.release import __version__
 
 ##########################################################
 ####################### Constants ########################
@@ -400,7 +401,6 @@ def apply_fun_to_elements(mat, fun_ref):
             for j in range(mat.shape[1]):
                 new_mat[i,j] = fun_ref(i, j, mat[i,j])
     else:
-        sum = mpmath.mpc(0.0)
         for i in range(mat.rows):
             for j in range(mat.cols):
                 new_mat[i,j] = fun_ref(i, j, mat[i,j])
