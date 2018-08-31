@@ -202,7 +202,7 @@ def polar(x):
         return mpmath.polar(x)
 
 def roots_sym(symPoly, **kwargs):
-    if mode == mode_python:
+    if mode == mode_python and not ("force_nroots" in kwargs and kwargs["force_nroots"]):
         coeffs = symPoly.all_coeffs()
         mapped_coeffs = map(lambda val: from_sympy(val), coeffs)
         return np.roots(mapped_coeffs)
